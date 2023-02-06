@@ -21,6 +21,13 @@ class Camera:
         else:
             return (None, None)
 
+    def save_frame(self, filename):
+        ret, frame = self.get_frame()
+        if ret:
+            cv2.imwrite(filename, frame)
+
+        return ret, frame
+
     def __del__(self):
         if self.vid.isOpened():
             self.vid.release()
