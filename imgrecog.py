@@ -1,86 +1,164 @@
 import numpy as np
 import cv2
 from camera import Camera, FakeCamera
+from prettytable import PrettyTable
+import matplotlib.pyplot as plt
 
 qualityLevel = 0.01
 minDistance = 10
 
+def lin_equ(l1, l2):
+    m = ((l2[1] - l1[1])) / (l2[0] - l1[0])
+    c = (l2[1] - (m * l2[0]))
+    return m, c
+
+def image_remove_shadow(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hsv[:,:,2] = cv2.equalizeHist(hsv[:,:,2])
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+def image_addaptive_guassian_threshold(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+
+def image_addaptive_mean_threshold(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
+
+def image_otsu_threshold(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    return cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+
+def gray_to_bgr(img):
+    return cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
 if __name__ == '__main__':
-    camera = FakeCamera("test.jpg")
-    
+    camera = FakeCamera("test2.jpeg", width=400, height=400)
+
     while True:
-        camera.save_frame("test.jpg")
         ret, frame = camera.get_frame()
-        empty = np.zeros_like(frame)
+        empty = frame
 
-        if not ret:
+        otsu = gray_to_bgr(image_otsu_threshold(frame))
+
+        for img in [frame, otsu]:
+            # find Harris corners
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            gray = cv2.GaussianBlur(gray, (5, 5), 0)
+            dst = cv2.cornerHarris(gray, 2, 3, 0.04)
+            #result is dilated for marking the corners, not important
+            dst = cv2.dilate(dst, None)
+            # Threshold for an optimal value, it may vary depending on the image.
+            img[dst > 0.01 * dst.max()] = [0, 0, 255]
+
+
+        # show the images 2 by 2 in same window
+        cv2.imshow('frame', np.hstack((frame, otsu)))
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        maxCorners = 90
 
-        corners = cv2.goodFeaturesToTrack(blur, maxCorners=maxCorners, qualityLevel=0.18, minDistance=12)
-        corners = np.int0(corners)
+    if False:
+        while True:
+            ret, frame = camera.get_frame()
+            empty = frame
 
-        # sort corners by x + y to get closest to top left
-        corners = sorted(corners, key=lambda x: x[0][0] + x[0][1])
+            if not ret:
+                break
 
-        len_corners = len(corners)
-        corner_lines_a = np.zeros((len_corners, len_corners), dtype=np.float32)
-        corner_lines_b = np.zeros((len_corners, len_corners), dtype=np.float32)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        for i in range(len_corners):
-            for j in range(len_corners):
-                if i != j:
-                    x1, y1 = corners[i][0]
-                    x2, y2 = corners[j][0]
-                    corner_lines_a[i][j] = (y2 - y1) / (x2 - x1)
-                    corner_lines_b[i][j] = y1 - corner_lines_a[i][j] * x1
+            gray[128 < gray] = [255]
+            gray[gray < 128] = [0]
 
-        print(corner_lines_a[0])
-        print(corner_lines_b[0])
+            blur = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        #for a, b in zip(corner_lines_a[12], corner_lines_b[12]):
-        #    cv2.line(empty, (0, int(b)), (1000, int(a * 1000 + b)), (0, 255, 0), 1)
+            maxCorners = 90
+
+            # image increase contrast
+            #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            #blur = clahe.apply(blur)
+
+            #dst = cv2.cornerHarris(blur, 2, 3, 0.04)
+            #dst = cv2.dilate(dst, None)
+            #empty[dst > 0.01 * dst.max()] = [0, 0, 255]
+
+            corners = cv2.goodFeaturesToTrack(blur, maxCorners=maxCorners, qualityLevel=0.18, minDistance=12)
+            corners = np.intp(corners)
+
+            # sort corners by x + y to get closest to top left
+            #corners = sorted(corners, key=lambda x: x[0][0] + x[0][1])
+
             
-        #for a, b in zip(corner_lines_a[15], corner_lines_b[15]):
-        #    cv2.line(empty, (0, int(b)), (1000, int(a * 1000 + b)), (0, 0, 255), 1)
+            for i in corners:
+                x, y = i.ravel()
+                cv2.circle(empty, (x, y), 3, 255, -1)
+            
+            cv2.imshow('frame', gray)
 
-        lines = []
+            '''
+            len_corners = len(corners)
+            corner_lines_a = np.zeros((len_corners, len_corners), dtype=np.float32)
+            corner_lines_b = np.zeros((len_corners, len_corners), dtype=np.float32)
+
+            for i in range(len_corners):
+                for j in range(len_corners):
+                    if i != j:
+                        corner_lines_a[i][j], corner_lines_b[i][j] = lin_equ(corners[i][0], corners[j][0])
+
+            for line in [corner_lines_a, corner_lines_b]:
+                table = PrettyTable()
+                for i in range(len_corners):
+                    table.add_column(str(i), ([0] * i) + [round(it, 2) for it in list(line[i][i:len_corners])])
+                print(table)
         
+            lines = []
 
-        for i in range(len_corners):
-            for j in range(len_corners):
-                if i == j:
-                    continue
-
-                a, b = corner_lines_a[i][j], corner_lines_b[i][j]
-
-                on_line = 0
-                for k in range(len_corners):
-                    if i == k or j == k:
+            for i in range(len_corners):
+                for j in range(i, len_corners):
+                    if i == j:
                         continue
+            '''
 
-                    a2, b2 = corner_lines_a[i][k], corner_lines_b[i][k]
+            
+            # create matplot graph using the algebraic equations of the lines
+            '''
+            x = np.linspace(0, 1000, 1000)
+            for i in range(len_corners):
+                for j in range(len_corners):
+                    if i != j:
+                        plt.plot(x, corner_lines_a[i][j] * x + corner_lines_b[i][j], color='black', linewidth=0.5)
+            '''
 
-                    if abs((100 * a + b) - (100*a2+b2)) < 5:
-                        on_line += 1
-                
-                if on_line > 5:
-                    lines.append((i, j))
+            '''
+            for a_line, b_line in zip(corner_lines_a, corner_lines_b):
+                for i in range(len_corners):
+                    for j in range(len_corners):
+                        x = 0
+                        plt.plot(x, a_line[i] * x + b_line[i], color='black', linewidth=2)
+            plt.show()
+            '''
 
-        for i in lines:
-            cv2.line(empty, tuple(corners[i[0]][0]), tuple(corners[i[1]][0]), (0, 255, 0), 2)
 
-        for i in corners:
-            x, y = i.ravel()
-            cv2.circle(empty, (x, y), 3, 255, -1)
 
-        cv2.imshow('frame', empty)
+            '''
+            for i in lines:
+                cv2.line(empty, tuple(corners[i[0]][0]), tuple(corners[i[1]][0]), (0, 255, 0), 2)
 
-        key = cv2.waitKey(1)
+            for i in corners:
+                x, y = i.ravel()
+                cv2.circle(empty, (x, y), 3, 255, -1)
 
-        if key & 0xFF == ord('q'):
-            break
+            # multiply size of image by 4
+            empty = cv2.resize(empty, (empty.shape[1] * 4, empty.shape[0] * 4))
+            '''
+
+            key = cv2.waitKey(1)
+
+            if key & 0xFF == ord('q'):
+                break
