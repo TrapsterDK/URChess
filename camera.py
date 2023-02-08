@@ -2,17 +2,11 @@
 import cv2
 
 class Camera:
-    def __init__(self, capture=1, width = None, height = None) -> None:
+    def __init__(self, capture=1) -> None:
         self.vid = cv2.VideoCapture(capture)
 
         if not self.vid.isOpened():
-            raise ValueError("Unable to open camera", 0)
-
-        if width is not None:
-            self.vid.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-
-        if height is not None:
-            self.vid.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            raise ValueError("Unable to open camera")
 
     def get_frame(self):
         if self.vid.isOpened():
@@ -41,7 +35,6 @@ class FakeCamera:
 
         if width is not None:
             self.img = cv2.resize(self.img, (width, height))
-
 
     def get_frame(self):
         return (True, self.img.copy())
