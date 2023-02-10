@@ -16,7 +16,7 @@ while True:
     print(move)
     if move == None:
         print(engine.get_fen())
-        print("Mate" + str(turn))
+        print("Mate")
         break
     #make move
     engine.move(str(move))
