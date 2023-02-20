@@ -3,7 +3,7 @@ import cv2
 from camera import Camera, FakeCamera
 import pathlib
 
-camera = Camera(0)
+camera = Camera(2)
 while True:
     # Capture frame-by-frame
     ret, frame = camera.get_frame()
