@@ -187,18 +187,24 @@ def lines_equal_distance_both_ways(sorted_lines, threshold = 15):
 
     return new_lines_indexes
 
+def count_from_index(list_of_numbers, index, reverse = False):
+    count = 1
+    index_number = list_of_numbers[index]
+    multiplier = -1 if reverse else 1
+    for next_number in list_of_numbers[index+1:] if not reverse else list_of_numbers[index-1::-1]:
+        if next_number != index_number + count * multiplier:
+            break
+        count += 1
+
+    return count
+
 def longest_count(list_of_numbers):
     # return the longest count of consecutive numbers starting from any number index and length
     # if there are multiple longest counts, return the first one
     longest_count = 0
     longest_count_index = 0
-    for i, number in enumerate(list_of_numbers):
-        count = 1
-        for j in range(i+1, len(list_of_numbers)):
-            if list_of_numbers[j] == number + count:
-                count += 1
-            else:
-                break
+    for i in range(len(list_of_numbers)):
+        count = count_from_index(list_of_numbers, i)
         if count > longest_count:
             longest_count = count
             longest_count_index = i
@@ -209,9 +215,28 @@ def get_chessboard_lines(sorted_lines, lines_indexes):
     first_index, count  = longest_count(lines_indexes)
 
     if count != 7:
-        return None
+        correct_index = None
+
+        if first_index - 1 < 0:
+            before = count_from_index(lines_indexes, first_index - 1, reverse=True)
+            if before + count + 1 == 7:
+                correct_index == first_index - before - 1
+
+
+        if first_index + count >= len(lines_indexes):
+            after = count_from_index(lines_indexes, first_index + count, reverse=False)
+            if after + count + 1 == 7:
+                # both options are valid choices so unable to determine
+                if correct_index is not None:
+                    return None
+                # set to show that the after option is valid
+                correct_index = first_index
+
+        if correct_index is not None:
+            first_index = correct_index
+
     
-    return sorted_lines[lines_indexes[first_index]-1:lines_indexes[first_index] + count + 1]
+    return sorted_lines[lines_indexes[first_index]-1:lines_indexes[first_index] + 8]
 
 def find_intersections(lines_direction_1, lines_direction_2, img_shape):
     intersections = []
@@ -277,7 +302,7 @@ def find_chess_board_rects(img):
     chessboard_lines_2 = get_chessboard_lines(lines_2, lines_2_indexes)
 
     if chessboard_lines_2 is None:
-        print(abs(90 - (math.degrees(math.atan2(math.sin(lines_2[8][1]), math.cos(lines_2[8][1]))) % 90)))
+        print(lines_2_indexes)
         show_lines_split(img, [], lines_2, common_angle)
         raise Exception("Chessboard board lines not found 2")
 
@@ -290,6 +315,7 @@ def find_chess_board_rects(img):
 
     return rectangles
 
+# show rotation detection
 if __name__ == "__main__":
     img = FakeCamera("images/up_2.png").get_frame()[1]
 
