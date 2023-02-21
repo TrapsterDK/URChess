@@ -52,7 +52,7 @@ def canny_edges(gray_img):
     return cv2.Canny(gray_img, 40, 255)
 
 def hough_lines(canny_img):
-    lines = cv2.HoughLines(canny_img, 1, math.pi/180.0, 90, np.array([]), 0, 0)
+    lines = cv2.HoughLines(canny_img, 1, math.pi/180.0, 100, np.array([]), 0, 0)
     if lines is None:
         return None
     return [line[0] for line in lines]
@@ -94,7 +94,7 @@ def split_lines_orthogonal(lines, angle):
     orthogonal = []
     other = []
     for line in lines:
-        if math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) < 135-angle:
+        if 45-angle < math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) < 135-angle:
             orthogonal.append(line)
         else:
             other.append(line)
@@ -126,8 +126,6 @@ def get_closer_line_angle(line1, line2, common_angle):
     if angle1 == angle2:
         return 0
     
-    print(angle1, angle2, common_angle)
-
     return 0 if abs(angle1 - common_angle) < abs(angle2 - common_angle) else 1
 
 def remove_intersecting_lines(lines, img_shape, common_angle):
@@ -159,7 +157,7 @@ def remove_intersecting_lines(lines, img_shape, common_angle):
 
     return new_lines
 
-def remove_close_lines(lines, threshold = 15):
+def remove_close_lines(lines, threshold = 10):
     # remove lines that are close to each other
     new_lines = [lines[0]]
     for line in lines:
@@ -217,13 +215,15 @@ def get_chessboard_lines(sorted_lines, lines_indexes):
     if count != 7:
         correct_index = None
 
+        # max one space before and after
+
         if first_index - 1 < 0:
             before = count_from_index(lines_indexes, first_index - 1, reverse=True)
             if before + count + 1 == 7:
                 correct_index == first_index - before - 1
 
 
-        if first_index + count >= len(lines_indexes):
+        if first_index + count > len(lines_indexes):
             after = count_from_index(lines_indexes, first_index + count, reverse=False)
             if after + count + 1 == 7:
                 # both options are valid choices so unable to determine
@@ -232,10 +232,12 @@ def get_chessboard_lines(sorted_lines, lines_indexes):
                 # set to show that the after option is valid
                 correct_index = first_index
 
-        if correct_index is not None:
-            first_index = correct_index
-
-    
+        if correct_index is None:
+            print("Unable to determine correct index", lines_indexes)
+            return None
+        
+        first_index = correct_index
+        
     return sorted_lines[lines_indexes[first_index]-1:lines_indexes[first_index] + 8]
 
 def find_intersections(lines_direction_1, lines_direction_2, img_shape):
@@ -267,25 +269,20 @@ def find_chess_board_rects(img):
     angles = get_hough_line_degree_angles(lines)
     common_angle = get_most_common_angle_90_degrees(angles)
     lines_1, lines_2 = split_lines_orthogonal(lines, common_angle)
-        
+    
     if len(lines_1) < 10 or len(lines_2) < 10:
-        show_lines_split(img, lines_1, lines_2, common_angle)
         raise Exception("Not enough lines found")
 
     lines_1 = remove_intersecting_lines(lines_1, img.shape, common_angle)
     lines_2 = remove_intersecting_lines(lines_2, img.shape, common_angle)
 
-    print(common_angle)
-
     if len(lines_1) < 10 or len(lines_2) < 10:
-        show_lines_split(img, lines_1, lines_2, common_angle)
         raise Exception("Not enough lines found")
 
     lines_1 = remove_close_lines(lines_1)
     lines_2 = remove_close_lines(lines_2)
 
     if len(lines_1) < 10 or len(lines_2) < 10:
-        show_lines_split(img, lines_1, lines_2, common_angle)
         raise Exception("Not enough lines found")
     
     lines_1 = sorted(lines_1, key = lambda line: line[0])
@@ -296,14 +293,11 @@ def find_chess_board_rects(img):
 
     chessboard_lines_1 = get_chessboard_lines(lines_1, lines_1_indexes)
     if chessboard_lines_1 is None:
-        show_lines_split(img, lines_1, [])
         raise Exception("Chessboard board lines not found 1")
     
     chessboard_lines_2 = get_chessboard_lines(lines_2, lines_2_indexes)
 
     if chessboard_lines_2 is None:
-        print(lines_2_indexes)
-        show_lines_split(img, [], lines_2, common_angle)
         raise Exception("Chessboard board lines not found 2")
 
     intersections = find_intersections(chessboard_lines_1, chessboard_lines_2, img.shape)
@@ -315,16 +309,59 @@ def find_chess_board_rects(img):
 
     return rectangles
 
+#https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
+def point_in_rectangle(point, rectangle):
+    M = point
+    A = rectangle[0]
+    B = rectangle[1]
+    C = rectangle[2]
+    D = rectangle[3]
+
+    return (
+            (0 < np.dot(M-A, B-A) < np.dot(B-A, B-A) 
+        and  0 < np.dot(M-A, D-A) < np.dot(D-A, D-A)) 
+        or  (0 < np.dot(M-C, B-C) < np.dot(B-C, B-C) 
+        and  0 < np.dot(M-C, D-C) < np.dot(D-C, D-C)))
+
+def get_square_with_point(point, rectangles):
+    for i, rectangle in enumerate(rectangles):
+        if point_in_rectangle(point, rectangle):
+            return i
+        
+    return None
+
+def square_to_chessboard_square(square):
+    x = square % 8
+    y = square // 8
+    return f"{'abcdefgh'[7-x]}{8-y}"
+
+'''
+print(square_to_chessboard_square(0))
+print(square_to_chessboard_square(1))
+print(square_to_chessboard_square(2))
+print(square_to_chessboard_square(3))
+print(square_to_chessboard_square(4))
+print(square_to_chessboard_square(5))
+print(square_to_chessboard_square(6))
+print(square_to_chessboard_square(7))
+print(square_to_chessboard_square(8))
+print(square_to_chessboard_square(63))
+'''
+
 # show rotation detection
 if __name__ == "__main__":
-    img = FakeCamera("images/up_2.png").get_frame()[1]
+    img = FakeCamera("images/up_1.png").get_frame()[1]
 
     rotation = 0
 
     while True:
         imgr = ndimage.rotate(img, rotation, reshape=True)
-        rectangles = find_chess_board_rects(imgr)
-        draw_rects_with_index(imgr, rectangles)
+        try:
+            rectangles = find_chess_board_rects(imgr)
+            draw_rects_with_index(imgr, rectangles)
+        except Exception as e:
+            print(e)
+            pass
         cv2.imshow("img", imgr)
         
         key = cv2.waitKey(0)
