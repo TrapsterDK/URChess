@@ -94,15 +94,10 @@ def split_lines_orthogonal(lines, angle):
     orthogonal = []
     other = []
     for line in lines:
-        if abs(math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) - angle) < 45:
-            print("other", abs(math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) - angle))
+        if math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) < 135-angle:
             orthogonal.append(line)
         else:
-            print("non", abs(math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) - angle))
             other.append(line)
-
-    orthogonal = sorted(orthogonal, key = lambda line: abs(math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) - angle))
-    other = sorted(other, key = lambda line: abs(math.degrees(math.atan2(math.sin(line[1]), math.cos(line[1]))) - angle))
 
     return orthogonal, other
 
@@ -130,6 +125,8 @@ def get_closer_line_angle(line1, line2, common_angle):
 
     if angle1 == angle2:
         return 0
+    
+    print(angle1, angle2, common_angle)
 
     return 0 if abs(angle1 - common_angle) < abs(angle2 - common_angle) else 1
 
@@ -273,16 +270,16 @@ def find_chess_board_rects(img):
     lines_2_indexes = lines_equal_distance_both_ways(lines_2)
 
     chessboard_lines_1 = get_chessboard_lines(lines_1, lines_1_indexes)
-    chessboard_lines_2 = get_chessboard_lines(lines_2, lines_2_indexes)
-    
     if chessboard_lines_1 is None:
-        print(lines_1_indexes)
         show_lines_split(img, lines_1, [])
-        raise Exception("Chessboard not found")
+        raise Exception("Chessboard board lines not found 1")
+    
+    chessboard_lines_2 = get_chessboard_lines(lines_2, lines_2_indexes)
+
     if chessboard_lines_2 is None:
-        print(lines_2_indexes)
+        print(abs(90 - (math.degrees(math.atan2(math.sin(lines_2[8][1]), math.cos(lines_2[8][1]))) % 90)))
         show_lines_split(img, [], lines_2, common_angle)
-        raise Exception("Chessboard not found 2")
+        raise Exception("Chessboard board lines not found 2")
 
     intersections = find_intersections(chessboard_lines_1, chessboard_lines_2, img.shape)
 
