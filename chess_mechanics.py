@@ -12,10 +12,10 @@ class Chess:
     def find_piece_move(self, move):
         move[0] = self.letter_to_number(move[0])
         move[2] = self.letter_to_number(move[2])
-        if self.piece_positions[move[0]][move[1]] is "" and self.piece_positions[move[2]][move[3]] is not "":
+        if self.piece_positions[move[0]][move[1]] == "" and self.piece_positions[move[2]][move[3]] != "":
             out = move[2:4] + move[0:2]
             return out
-        elif self.piece_positions[move[0]][move[1]] is not "" and self.piece_positions[move[2]][move[3]] is "":
+        elif self.piece_positions[move[0]][move[1]] != "" and self.piece_positions[move[2]][move[3]] == "":
             out = move[0:2] + move[2:4]
             return out
         
@@ -31,7 +31,7 @@ class Chess:
             return self.engine.get_best_move_time(time)
         move = self.engine.get_best_move_time(self.time)
         #if move is a take
-        if self.piece_positions[move[2]][move[3]] is not "":
+        if self.piece_positions[move[2]][move[3]] != "":
             out = [move[2:4] + "00", move[0:2] + move[2:4]]
             return out
         return [move]
