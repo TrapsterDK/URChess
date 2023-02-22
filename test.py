@@ -21,6 +21,7 @@ while True:
     #make move
     engine.move(str(move))
     user = True
+    print(engine.get_visual())
     #check if game is over
     while user:
         user_input = input("Enter move: ")

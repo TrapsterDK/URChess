@@ -2,7 +2,6 @@
 from stockfish import Stockfish
 class Engine:
     def __init__(self, path, depth):
-        self.engine = Stockfish(path, depth)
         self.default_settings = {
             "Debug Log File": "",
             "Contempt": 0,
@@ -19,11 +18,14 @@ class Engine:
             "UCI_LimitStrength": "false",
             "UCI_Elo": 1350,
             "EvalFile": r"stockfish\new.nnue",
-            "Use NNUE": "true",
+            "Use NNUE": "true"
         }
+        self.engine = Stockfish(path, depth)
+        self.engine.update_engine_parameters(self.default_settings)
         self.moves = 0
         #if it is white's turn turn = True else turn = False
         self.turn = True
+        self.last_fen = None
     
 
     def get_fen(self):
@@ -34,25 +36,39 @@ class Engine:
     
     def get_parameters(self):
         return self.engine.get_parameters()
-    #from start position
-    def set_position(self, moves):
-        self.engine.set_position(moves)
-        self.moves = 0
-        self.turn = True
     
     def move(self, move):
+        self.last_fen = self.engine.get_fen_position()
         self.engine.make_moves_from_current_position([move])
         self.moves += 1
         self.turn = not self.turn
     
-    def set_fen(self, fen):
+    def set_fen(self, fen, moves=0, turn=True):
         self.engine.set_fen_position(fen)
-        self.moves = 0
-        self.turn = True
-    #get best move in time
+        self.moves = moves
+        self.turn = turn
+
     def get_best_move_time(self, time):
         return self.engine.get_best_move_time(time)
-    #get best move in depth
+
 
     def get_best_move_depth(self, depth):
-        return self.engine.get_best_move_depth(depth)
+        temp_depth = self.engine.depth
+        self.engine.depth = depth
+        best_move = self.engine.get_best_move()
+        self.engine.depth = temp_depth
+        return best_move
+    
+    def is_move_legal(self, move):
+        return self.engine.is_move_correct(move)
+    
+
+    def undo_move(self):
+        self.engine.set_fen_position(self.last_fen)
+        self.moves = 0
+        self.turn = not self.turn
+
+    def get_visual(self):
+        return self.engine.get_board_visual()
+
+        

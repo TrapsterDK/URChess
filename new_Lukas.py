@@ -80,7 +80,7 @@ def compare_images(before, after):
         cv2.rectangle(mask, (out[1][i][0]-2, out[1][i][1]-2), (out[1][i][0]+2, out[1][i][1]+2), (255,255,255), 2)
     return out[0], out[1], mask
 #take a picture
-cam = Camera()
+cam = Camera(0)
 ret, before = cam.get_frame()
 cam.save_frame("zero_frame.png")
 succes_count = 0
