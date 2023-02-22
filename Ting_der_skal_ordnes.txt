@@ -1,0 +1,3 @@
+NNUE skal virke uden at andre i biblioteket
+Måske har det noget at gøre med self._parameters?? Mulig liste af parametre man kan ændre. 
+
