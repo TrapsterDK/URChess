@@ -20,6 +20,7 @@ class Chess:
             return out
         
     def move(self, move):
+        move = move[0] + move[1]
         move = self.find_piece_move(move)
         if not self.engine.is_move_legal(move):
             return "Invalid move"
