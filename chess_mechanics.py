@@ -1,14 +1,76 @@
 from engine import Engine
 class Chess:
-    def __init__(self):
-        self.engine = Engine(r"stockfish\stockfish-windows-2022-x86-64-avx2.exe", 3)
+    def __init__(self, time=5000, depth=100):
+        self.engine = Engine(r"stockfish\stockfish-windows-2022-x86-64-avx2.exe", depth)
         self.piece_positions = [[0 for i in range(8)] for j in range(8)]
         self.start_pos()
         print(self.piece_positions)
+        self.time = time
+        self.depth = depth
     def get_visual(self):
         return self.engine.get_visual()
+    def find_piece_move(self, move):
+        move[0] = self.letter_to_number(move[0])
+        move[2] = self.letter_to_number(move[2])
+        if self.piece_positions[move[0]][move[1]] is "" and self.piece_positions[move[2]][move[3]] is not "":
+            out = move[2:4] + move[0:2]
+            return out
+        elif self.piece_positions[move[0]][move[1]] is not "" and self.piece_positions[move[2]][move[3]] is "":
+            out = move[0:2] + move[2:4]
+            return out
+        
     def move(self, move):
-        pass
+        move = self.find_piece_move(move)
+        if not self.engine.is_move_legal(move):
+            return "Invalid move"
+        self.engine.move(move)
+        self.piece_positions[move[2]][move[3]], self.piece_positions[move[0]][move[1]] = self.piece_positions[move[0]][move[1]], self.piece_positions[move[2]][move[3]]
+        return "valid move"
+    def get_engine_move_time(self, time = None):
+        if time is not None:
+            return self.engine.get_best_move_time(time)
+        return self.engine.get_best_move_time(self.time)
+    
+    def get_engine_move_depth(self, depth = None):
+        if depth is not None:
+            return self.engine.get_best_move_depth(depth)
+        return self.engine.get_best_move_depth(self.depth)
+    
+        
+    def letter_to_number(self, letter):
+        if letter == "a":
+            return 0
+        elif letter == "b":
+            return 1
+        elif letter == "c":
+            return 2
+        elif letter == "d":
+            return 3
+        elif letter == "e":
+            return 4
+        elif letter == "f":
+            return 5
+        elif letter == "g":
+            return 6
+        elif letter == "h":
+            return 7
+    def number_to_letter(self, number):
+        if number == 0:
+            return "a"
+        elif number == 1:
+            return "b"
+        elif number == 2:
+            return "c"
+        elif number == 3:
+            return "d"
+        elif number == 4:
+            return "e"
+        elif number == 5:
+            return "f"
+        elif number == 6:
+            return "g"
+        elif number == 7:
+            return "h"
     def start_pos(self):
         Engine.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.piece_positions[0][0] = "R"
@@ -45,5 +107,7 @@ class Chess:
         self.piece_positions[7][7] = "r"
 
 chess = Chess()
+list = ["e", 2, "e", 4]
+#make list a string
 
         

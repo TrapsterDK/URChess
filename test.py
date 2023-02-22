@@ -26,6 +26,7 @@ while True:
     while user:
         user_input = input("Enter move: ")
         try:
+            print(engine.is_move_legal(user_input))
             engine.move(str(user_input))
             user = False
         except:
