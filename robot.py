@@ -136,10 +136,12 @@ def get_piece_coordinate_from_chessboard(x, y, board_side = 8):
 if __name__ == "__main__":
     robot = Robot("10.130.58.12")
 
-    x1, y1 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[0][0], pieces_pixel_coordinates[0][1])
-    x2, y2 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[1][0], pieces_pixel_coordinates[1][1])
+    #x1, y1 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[0][0], pieces_pixel_coordinates[0][1])
+    #x2, y2 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[1][0], pieces_pixel_coordinates[1][1])
 
-    print(x1, y1, x2, y2)
+    x1, y1 = get_piece_coordinate_from_chessboard(1, 1)
+    x2, y2 = get_piece_coordinate_from_chessboard(2, 2)
+
     robot.move_piece(x1, y1, x2, y2)
 
 

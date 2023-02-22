@@ -232,7 +232,6 @@ def get_chessboard_lines(sorted_lines, lines_indexes):
                 correct_index = first_index
 
         if correct_index is None:
-            print("Unable to determine correct index", lines_indexes)
             return None
         
         first_index = correct_index
@@ -339,6 +338,12 @@ def chessboard_to_square(chessboard_square):
     y = 8 - int(chessboard_square[1])
     return y * 8 + x
 
+def square_to_xy(square):
+    x = square % 8
+    y = square // 8
+    return x+1, y+1
+
+'''
 print(square_to_chessboard_square(0))
 print(square_to_chessboard_square(1))
 print(square_to_chessboard_square(2))
@@ -349,6 +354,7 @@ print(square_to_chessboard_square(6))
 print(square_to_chessboard_square(7))
 print(square_to_chessboard_square(8))
 print(square_to_chessboard_square(63))
+'''
 
 '''
 from scipy import ndimage

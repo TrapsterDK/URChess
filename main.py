@@ -1,32 +1,44 @@
 from camera import Camera
 from robot import Robot
-from findchessboard import find_chess_board_rects, get_square_with_point, square_to_chessboard_square, chessboard_to_square
+from findchessboard import find_chess_board_rects, get_square_with_point, square_to_chessboard_square, chessboard_to_square, square_to_xy
+from find_moves import find_move
+from chess_mechanics import Chess
 
 if __name__ == "__main__":
     camera = Camera()
     robot = Robot("10.130.58.12")
+    chess = Chess()
 
+    print("Started")
     while True:
         frame = camera.get_frame()
 
-        move_1, move_2 = ???
+        print("Waiting for move")
+        moves = find_move(camera)
         
+        print("Finding chessboard")
         while True:
             try:
                 rects = find_chess_board_rects(frame)
-                square_1 = get_square_with_point(move_1, rects)
-                square_2 = get_square_with_point(move_2, rects)
-
-                chess_square_1 = square_to_chessboard_square(square_1)
-                chess_square_2 = square_to_chessboard_square(square_2)
+                squares = [get_square_with_point(move, rects) for move in moves]
+                chesssquare = [square_to_chessboard_square(square) for square in squares]
+                chess.move(chesssquare)
                 break
             except:
                 pass
         
-        chessmove = ???
-        pos1 = chessboard_to_square(chessmove[0:2])
-        pos2 = chessboard_to_square(chessmove[2:4])
-        robot.move_piece(pos1[0], pos1[1], pos2[0], pos2[1])
+
+        print("Moving piece")
+        chessmove = chess.get_engine_move_time(1000)
+        for move in chessmove:
+            pos1 = chessboard_to_square(chessmove[0:2])
+            x1, y1 = square_to_xy(pos1)
+            if pos2 == "00":
+                x2, y2 = -1, -1
+            else:
+                pos2 = chessboard_to_square(chessmove[2:4])
+                x2, y2 = square_to_xy(pos2)
+            robot.move_piece(x1, y1, x2, y2)
+
+        print(chess.get_visual())
  
-        
-        
