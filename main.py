@@ -9,12 +9,13 @@ if __name__ == "__main__":
     while True:
         frame = camera.get_frame()
 
+        move_1, move_2 = ???
+        
         while True:
-            move_1, move_2 = 
             try:
                 rects = find_chess_board_rects(frame)
-                square_1 = get_square_with_point(move_1, (0, 0))
-                square_2 = get_square_with_point(move_2, (0, 0))
+                square_1 = get_square_with_point(move_1, rects)
+                square_2 = get_square_with_point(move_2, rects)
 
                 chess_square_1 = square_to_chessboard_square(square_1)
                 chess_square_2 = square_to_chessboard_square(square_2)
