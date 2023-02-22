@@ -92,13 +92,14 @@ def find_move(cam):
                 
         ret, after = cam.get_frame()
         out, coordinates, mask = compare_images(before, after)
-        cv2.imshow("mask", mask)
+        #cv2.imshow("mask", mask)
         #cv2.imshow("before", before)
         #cv2.imshow("after", after)
-        cv2.waitKey(200)
+        #cv2.waitKey(200)
         count += 1
         if count > 10:
             if succes_count != 0 and fail_count < succes_count and fail_count/ succes_count < 0.2 and out != "fail":
+                #cv2.destroyAllWindows()
                 return out, save_coor
                 ret, before = cam.get_frame()
                 count = 0
