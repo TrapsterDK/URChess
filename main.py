@@ -9,11 +9,14 @@ if __name__ == "__main__":
     robot = Robot("10.130.58.12")
     chess = Chess()
 
+    print("Started")
     while True:
         frame = camera.get_frame()
 
+        print("Waiting for move")
         moves = find_move(camera)
         
+        print("Finding chessboard")
         while True:
             try:
                 rects = find_chess_board_rects(frame)
@@ -24,6 +27,8 @@ if __name__ == "__main__":
             except:
                 pass
         
+
+        print("Moving piece")
         chessmove = chess.get_engine_move_time(1000)
         for move in chessmove:
             pos1 = chessboard_to_square(chessmove[0:2])
