@@ -21,11 +21,13 @@ class Robot:
         config_filename = "robot_configuration.xml"
         conf = rtde_config.ConfigFile(config_filename)
         
+        state_names, state_types = conf.get_recipe("state")
         watchdog_names, watchdog_types = conf.get_recipe("watchdog")
 
         self.rtde_con = rtde.RTDE(ip, RTDE_PORT)
         self.rtde_con.connect()
         
+        self.rtde_con.send_output_setup(state_names, state_types)
         self.watchdog = self.rtde_con.send_input_setup(watchdog_names, watchdog_types)
         self.watchdog.input_int_register_0 = 0
         self.watchdog.input_int_register_1 = 0
@@ -116,24 +118,28 @@ class Robot:
         while self.running():
             continue
 
-pieces_real_coordinates = [(59.1, -276.8), (282.6, -503.7)]
+pieces_real_coordinates = [(-276.6, -59.8), (-502.2, -281.5)]
 pieces_pixel_coordinates = [(486, 36), (91, 431)]
 
-def get_piece_coordinate_from_pixel(x, y, img_width, img_height):
-    x = x / img_width
-    y = y / img_height
+def get_piece_coordinate_from_pixel(x, y):
+    x = (x - pieces_pixel_coordinates[0][0]) / (pieces_pixel_coordinates[1][0] - pieces_pixel_coordinates[0][0]) * (pieces_real_coordinates[1][0] - pieces_real_coordinates[0][0]) + pieces_real_coordinates[0][0]
+    y = (y - pieces_pixel_coordinates[0][1]) / (pieces_pixel_coordinates[1][1] - pieces_pixel_coordinates[0][1]) * (pieces_real_coordinates[1][1] - pieces_real_coordinates[0][1]) + pieces_real_coordinates[0][1]
 
-    x = x * (pieces_real_coordinates[1][0] - pieces_real_coordinates[0][0]) + pieces_real_coordinates[0][0]
-    y = y * (pieces_real_coordinates[1][1] - pieces_real_coordinates[0][1]) + pieces_real_coordinates[0][1]
+    return int(x), int(y)
 
-    return x, y
+def get_piece_coordinate_from_chessboard(x, y, board_side = 8):
+    x = (x - 1) / (board_side - 1) * (pieces_real_coordinates[1][0] - pieces_real_coordinates[0][0]) + pieces_real_coordinates[0][0]
+    y = (y - 1) / (board_side - 1) * (pieces_real_coordinates[1][1] - pieces_real_coordinates[0][1]) + pieces_real_coordinates[0][1]
+
+    return int(x), int(y)
 
 if __name__ == "__main__":
     robot = Robot("10.130.58.12")
 
-    x1, y1 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[0][0], pieces_pixel_coordinates[0][1], 640, 480)
-    x2, y2 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[1][0], pieces_pixel_coordinates[1][1], 640, 480)
+    x1, y1 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[0][0], pieces_pixel_coordinates[0][1])
+    x2, y2 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[1][0], pieces_pixel_coordinates[1][1])
 
+    print(x1, y1, x2, y2)
     robot.move_piece(x1, y1, x2, y2)
 
 

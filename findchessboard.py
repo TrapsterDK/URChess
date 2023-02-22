@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 import math
-from scipy import ndimage
-from camera import FakeCamera
+from camera import FakeCamera, Camera
 
 #helper functions
 
@@ -335,7 +334,11 @@ def square_to_chessboard_square(square):
     y = square // 8
     return f"{'abcdefgh'[7-x]}{8-y}"
 
-'''
+def chessboard_to_square(chessboard_square):
+    x = "abcdefgh".index(chessboard_square[0])
+    y = 8 - int(chessboard_square[1])
+    return y * 8 + x
+
 print(square_to_chessboard_square(0))
 print(square_to_chessboard_square(1))
 print(square_to_chessboard_square(2))
@@ -346,7 +349,9 @@ print(square_to_chessboard_square(6))
 print(square_to_chessboard_square(7))
 print(square_to_chessboard_square(8))
 print(square_to_chessboard_square(63))
+
 '''
+from scipy import ndimage
 
 # show rotation detection
 if __name__ == "__main__":
@@ -374,3 +379,19 @@ if __name__ == "__main__":
 
         if key == ord('d'):
             rotation -= 5
+'''
+
+if __name__ == "__main__":
+    camera = Camera(0)
+
+    while True:
+        img = camera.get_frame()[1]
+        try:
+            rectangles = find_chess_board_rects(img)
+            draw_rects_with_index(img, rectangles)
+        except Exception as e:
+            print(e)
+            pass
+        cv2.imshow("img", img)
+        if cv2.waitKey(1) == ord('q'):
+            break
