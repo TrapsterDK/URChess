@@ -50,7 +50,11 @@ class Robot:
 
     def update_thread(self) -> None:
         while True:
-            self.rtde_con.receive_buffered()
+            try:
+                self.rtde_con.receive_buffered()
+            except Exception as e:
+                print("Error receiving RTDE data: ", e)
+                break
 
     def close(self) -> None:
         self.rtde_con.send_pause()
