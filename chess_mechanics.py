@@ -10,12 +10,12 @@ class Chess:
     def get_visual(self):
         return self.engine.get_visual()
     def find_piece_move(self, move):
-        move[0] = self.letter_to_number(move[0])
-        move[2] = self.letter_to_number(move[2])
-        if self.piece_positions[move[0]][move[1]] == "" and self.piece_positions[move[2]][move[3]] != "":
+        move_coord = str(self.letter_to_number(move[0])) + move[1] + str(self.letter_to_number(move[2])) + move[3]
+        move = move_coord
+        if self.piece_positions[int(move[0])][int(move[1])] == "" and self.piece_positions[int(move[2])][int(move[3])] != "":
             out = move[2:4] + move[0:2]
             return out
-        elif self.piece_positions[move[0]][move[1]] != "" and self.piece_positions[move[2]][move[3]] == "":
+        elif self.piece_positions[int(move[0])][int(move[1])] != "" and self.piece_positions[int(move[2])][int(move[3])] == "":
             out = move[0:2] + move[2:4]
             return out
         
@@ -78,7 +78,7 @@ class Chess:
         elif number == 7:
             return "h"
     def start_pos(self):
-        Engine.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.engine.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.piece_positions[0][0] = "R"
         self.piece_positions[0][1] = "N"
         self.piece_positions[0][2] = "B"
@@ -112,8 +112,5 @@ class Chess:
         self.piece_positions[7][6] = "n"
         self.piece_positions[7][7] = "r"
 
-chess = Chess()
-list = ["e", 2, "e", 4]
-#make list a string
 
         

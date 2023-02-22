@@ -5,35 +5,38 @@ from find_moves import find_move
 from chess_mechanics import Chess
 
 if __name__ == "__main__":
-    camera = Camera()
+    camera = Camera(0)
     robot = Robot("10.130.58.12")
     chess = Chess()
 
     print("Started")
     while True:
-        frame = camera.get_frame()
-
         print("Waiting for move")
         moves = find_move(camera)
+        print("Found moves coordinates", moves)
         
         print("Finding chessboard")
         while True:
-            try:
-                rects = find_chess_board_rects(frame)
-                squares = [get_square_with_point(move, rects) for move in moves]
-                chesssquare = [square_to_chessboard_square(square) for square in squares]
-                chess.move(chesssquare)
-                break
-            except:
-                pass
-        
+            frame = camera.get_frame()[1]
+
+            rects = find_chess_board_rects(frame)
+            if rects is None:
+                continue
+            print("Found  chessboard")
+            squares = [get_square_with_point(move, rects) for move in moves]
+            chesssquare = [square_to_chessboard_square(square) for square in squares]
+            print("Found chessboard moves", chesssquare)
+            if chess.move(chesssquare) == "Illegal Move":
+                exit()
+            break
 
         print("Moving piece")
         chessmove = chess.get_engine_move_time(1000)
+        print("Moves: ", chessmove)
         for move in chessmove:
             pos1 = chessboard_to_square(chessmove[0:2])
             x1, y1 = square_to_xy(pos1)
-            if pos2 == "00":
+            if chessmove[2:4] == "00":
                 x2, y2 = -1, -1
             else:
                 pos2 = chessboard_to_square(chessmove[2:4])

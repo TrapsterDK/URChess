@@ -262,6 +262,7 @@ def find_chess_board_rects(img):
 
     lines = hough_lines(canny)
     if lines is None:
+        return None
         raise Exception("No lines found")
 
     angles = get_hough_line_degree_angles(lines)
@@ -269,18 +270,21 @@ def find_chess_board_rects(img):
     lines_1, lines_2 = split_lines_orthogonal(lines, common_angle)
     
     if len(lines_1) < 10 or len(lines_2) < 10:
+        return None
         raise Exception("Not enough lines found")
 
     lines_1 = remove_intersecting_lines(lines_1, img.shape, common_angle)
     lines_2 = remove_intersecting_lines(lines_2, img.shape, common_angle)
 
     if len(lines_1) < 10 or len(lines_2) < 10:
+        return None
         raise Exception("Not enough lines found")
 
     lines_1 = remove_close_lines(lines_1)
     lines_2 = remove_close_lines(lines_2)
 
     if len(lines_1) < 10 or len(lines_2) < 10:
+        return None
         raise Exception("Not enough lines found")
     
     lines_1 = sorted(lines_1, key = lambda line: line[0])
@@ -291,16 +295,19 @@ def find_chess_board_rects(img):
 
     chessboard_lines_1 = get_chessboard_lines(lines_1, lines_1_indexes)
     if chessboard_lines_1 is None:
+        return None
         raise Exception("Chessboard board lines not found 1")
     
     chessboard_lines_2 = get_chessboard_lines(lines_2, lines_2_indexes)
 
     if chessboard_lines_2 is None:
+        return None
         raise Exception("Chessboard board lines not found 2")
 
     intersections = find_intersections(chessboard_lines_1, chessboard_lines_2, img.shape)
 
     if len(intersections) != 81:
+        return None
         raise Exception("Chessboard not found")
 
     rectangles = chessboard_points_to_rectangles(intersections)
