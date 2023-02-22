@@ -29,7 +29,12 @@ class Chess:
     def get_engine_move_time(self, time = None):
         if time is not None:
             return self.engine.get_best_move_time(time)
-        return self.engine.get_best_move_time(self.time)
+        move = self.engine.get_best_move_time(self.time)
+        #if move is a take
+        if self.piece_positions[move[2]][move[3]] is not "":
+            out = [move[2:4] + "00", move[0:2] + move[2:4]]
+            return out
+        return [move]
     
     def get_engine_move_depth(self, depth = None):
         if depth is not None:
