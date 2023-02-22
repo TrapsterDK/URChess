@@ -27,6 +27,6 @@ if __name__ == "__main__":
         pos1 = chessboard_to_square(chessmove[0:2])
         pos2 = chessboard_to_square(chessmove[2:4])
         robot.move_piece(pos1[0], pos1[1], pos2[0], pos2[1])
-
+ 
         
         
