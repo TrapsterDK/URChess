@@ -339,6 +339,11 @@ def chessboard_to_square(chessboard_square):
     y = 8 - int(chessboard_square[1])
     return y * 8 + x
 
+def square_to_xy(square):
+    x = square % 8
+    y = square // 8
+    return x+1, y+1
+
 print(square_to_chessboard_square(0))
 print(square_to_chessboard_square(1))
 print(square_to_chessboard_square(2))
