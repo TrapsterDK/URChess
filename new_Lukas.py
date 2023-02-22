@@ -79,64 +79,65 @@ def compare_images(before, after):
     for i in range (len(out[1])):
         cv2.rectangle(mask, (out[1][i][0]-2, out[1][i][1]-2), (out[1][i][0]+2, out[1][i][1]+2), (255,255,255), 2)
     return out[0], out[1], mask
-#take a picture
-cam = Camera(0)
-ret, before = cam.get_frame()
-cam.save_frame("zero_frame.png")
-succes_count = 0
-fail_count = 0
-count = 0
-save_coor = [(0,0), (0,0), (0,0), (0,0)]
-while True:
-            
-    ret, after = cam.get_frame()
-    out, coordinates, mask = compare_images(before, after)
-    cv2.imshow("mask", mask)
-    #cv2.imshow("before", before)
-    #cv2.imshow("after", after)
-    cv2.waitKey(200)
-    count += 1
-    if count > 10:
-        if succes_count != 0 and fail_count < succes_count and fail_count/ succes_count < 0.2 and out != "fail":
-            print(out, save_coor)
-            ret, before = cam.get_frame()
-            count = 0
-            succes_count = 0
-            fail_count = 0
-        else:
-            #print("mega fail")
-            count = 0
-            fail_count = 0
-    if out == "two pieces":
-        #print("succes")
-        if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1 and save_coor[1][0]*0.9 < coordinates[1][0] < save_coor[1][0]*1.1 and save_coor[1][1]*0.9 < coordinates[1][1] < save_coor[1][1]*1.1:
-            succes_count += 1
-        else:
-            #print("koor fail")
-            save_coor = coordinates
-            succes_count = 0
-    if out == "one piece":
-        if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1:
-            succes_count += 1
-        else:
-            #print("koor fail")
-            save_coor = coordinates
-            succes_count = 0
-    if out == "four pieces":
-        if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1 and save_coor[1][0]*0.9 < coordinates[1][0] < save_coor[1][0]*1.1 and save_coor[1][1]*0.9 < coordinates[1][1] < save_coor[1][1]*1.1 and save_coor[2][0]*0.9 < coordinates[2][0] < save_coor[2][0]*1.1 and save_coor[2][1]*0.9 < coordinates[2][1] < save_coor[2][1]*1.1 and save_coor[3][0]*0.9 < coordinates[3][0] < save_coor[3][0]*1.1 and save_coor[3][1]*0.9 < coordinates[3][1] < save_coor[3][1]*1.1:
-            succes_count += 1
-        else:
-            #print("koor fail")
-            save_coor = coordinates
-            succes_count = 0
-    if out == "fail":
-        #print("fail from compare_images")
-        fail_count += 1
+
+def find_move(cam):
+    #take a picture
+    ret, before = cam.get_frame()
+    cam.save_frame("zero_frame.png")
+    succes_count = 0
+    fail_count = 0
+    count = 0
+    save_coor = [(0,0), (0,0), (0,0), (0,0)]
+    while True:
+                
+        ret, after = cam.get_frame()
+        out, coordinates, mask = compare_images(before, after)
+        cv2.imshow("mask", mask)
+        #cv2.imshow("before", before)
+        #cv2.imshow("after", after)
+        cv2.waitKey(200)
+        count += 1
+        if count > 10:
+            if succes_count != 0 and fail_count < succes_count and fail_count/ succes_count < 0.2 and out != "fail":
+                return out, save_coor
+                ret, before = cam.get_frame()
+                count = 0
+                succes_count = 0
+                fail_count = 0
+            else:
+                #print("mega fail")
+                count = 0
+                fail_count = 0
+        if out == "two pieces":
+            #print("succes")
+            if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1 and save_coor[1][0]*0.9 < coordinates[1][0] < save_coor[1][0]*1.1 and save_coor[1][1]*0.9 < coordinates[1][1] < save_coor[1][1]*1.1:
+                succes_count += 1
+            else:
+                #print("koor fail")
+                save_coor = coordinates
+                succes_count = 0
+        if out == "one piece":
+            if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1:
+                succes_count += 1
+            else:
+                #print("koor fail")
+                save_coor = coordinates
+                succes_count = 0
+        if out == "four pieces":
+            if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1 and save_coor[1][0]*0.9 < coordinates[1][0] < save_coor[1][0]*1.1 and save_coor[1][1]*0.9 < coordinates[1][1] < save_coor[1][1]*1.1 and save_coor[2][0]*0.9 < coordinates[2][0] < save_coor[2][0]*1.1 and save_coor[2][1]*0.9 < coordinates[2][1] < save_coor[2][1]*1.1 and save_coor[3][0]*0.9 < coordinates[3][0] < save_coor[3][0]*1.1 and save_coor[3][1]*0.9 < coordinates[3][1] < save_coor[3][1]*1.1:
+                succes_count += 1
+            else:
+                #print("koor fail")
+                save_coor = coordinates
+                succes_count = 0
+        if out == "fail":
+            #print("fail from compare_images")
+            fail_count += 1
 
 
 
-    
         
+            
 
 
 

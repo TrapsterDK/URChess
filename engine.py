@@ -20,8 +20,9 @@ class Engine:
             "EvalFile": r"stockfish\new.nnue",
             "Use NNUE": "true"
         }
-        self.engine = Stockfish(path, depth)
-        self.engine.update_engine_parameters(self.default_settings)
+        self.stockfish = Stockfish(path, depth)
+        self.stockfish._parameters = self.default_settings
+        self.stockfish.update_engine_parameters(self.default_settings)
         self.moves = 0
         #if it is white's turn turn = True else turn = False
         self.turn = True
@@ -29,46 +30,46 @@ class Engine:
     
 
     def get_fen(self):
-        return self.engine.get_fen_position()
+        return self.stockfish.get_fen_position()
 
     def get_moves(self):
         return self.moves
     
     def get_parameters(self):
-        return self.engine.get_parameters()
+        return self.stockfish.get_parameters()
     
     def move(self, move):
-        self.last_fen = self.engine.get_fen_position()
-        self.engine.make_moves_from_current_position([move])
+        self.last_fen = self.stockfish.get_fen_position()
+        self.stockfish.make_moves_from_current_position([move])
         self.moves += 1
         self.turn = not self.turn
     
     def set_fen(self, fen, moves=0, turn=True):
-        self.engine.set_fen_position(fen)
+        self.stockfish.set_fen_position(fen)
         self.moves = moves
         self.turn = turn
 
     def get_best_move_time(self, time):
-        return self.engine.get_best_move_time(time)
+        return self.stockfish.get_best_move_time(time)
 
 
     def get_best_move_depth(self, depth):
-        temp_depth = self.engine.depth
-        self.engine.depth = depth
-        best_move = self.engine.get_best_move()
-        self.engine.depth = temp_depth
+        temp_depth = self.stockfish.depth
+        self.stockfish.depth = depth
+        best_move = self.stockfish.get_best_move()
+        self.stockfish.depth = temp_depth
         return best_move
     
     def is_move_legal(self, move):
-        return self.engine.is_move_correct(move)
+        return self.stockfish.is_move_correct(move)
     
 
     def undo_move(self):
-        self.engine.set_fen_position(self.last_fen)
+        self.stockfish.set_fen_position(self.last_fen)
         self.moves = 0
         self.turn = not self.turn
 
     def get_visual(self):
-        return self.engine.get_board_visual()
+        return self.stockfish.get_board_visual()
 
         
