@@ -103,6 +103,7 @@ class Robot:
 
 
     def move_piece(self, x1, y1, x2, y2) -> None:
+        print("Moving piece from " + str(x1) + ", " + str(y1) + " to " + str(x2) + ", " + str(y2))
         self.watchdog.input_int_register_0 = x1
         self.watchdog.input_int_register_1 = y1
         self.watchdog.input_int_register_2 = x2
@@ -132,6 +133,7 @@ def get_piece_coordinate_from_pixel(x, y):
     return int(x), int(y)
 
 def get_piece_coordinate_from_chessboard(x, y, board_side = 8):
+    x, y = y, x
     x = (x - 1) / (board_side - 1) * (pieces_real_coordinates[1][0] - pieces_real_coordinates[0][0]) + pieces_real_coordinates[0][0]
     y = (y - 1) / (board_side - 1) * (pieces_real_coordinates[1][1] - pieces_real_coordinates[0][1]) + pieces_real_coordinates[0][1]
 
@@ -143,8 +145,8 @@ if __name__ == "__main__":
     #x1, y1 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[0][0], pieces_pixel_coordinates[0][1])
     #x2, y2 = get_piece_coordinate_from_pixel(pieces_pixel_coordinates[1][0], pieces_pixel_coordinates[1][1])
 
-    x1, y1 = get_piece_coordinate_from_chessboard(1, 1)
-    x2, y2 = get_piece_coordinate_from_chessboard(2, 2)
+    x1, y1 = get_piece_coordinate_from_chessboard(5, 7)
+    x2, y2 = get_piece_coordinate_from_chessboard(5, 5)
 
     robot.move_piece(x1, y1, x2, y2)
 

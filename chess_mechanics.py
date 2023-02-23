@@ -10,31 +10,37 @@ class Chess:
     def get_visual(self):
         return self.engine.get_visual()
     def find_piece_move(self, move):
-        move_coord = str(self.letter_to_number(move[0])) + move[1] + str(self.letter_to_number(move[2])) + move[3]
-        move = move_coord
-        if self.piece_positions[int(move[0])][int(move[1])] == "" and self.piece_positions[int(move[2])][int(move[3])] != "":
+        move_coord = self.get_coord(move)
+        if self.piece_positions[int(move_coord[1])][int(move_coord[0])] == 0 and self.piece_positions[int(move_coord[3])][int(move_coord[2])] != 0:
             out = move[2:4] + move[0:2]
             return out
-        elif self.piece_positions[int(move[0])][int(move[1])] != "" and self.piece_positions[int(move[2])][int(move[3])] == "":
+        elif self.piece_positions[int(move_coord[1])][int(move_coord[0])] != 0 and self.piece_positions[int(move_coord[3])][int(move_coord[2])] == 0:
             out = move[0:2] + move[2:4]
             return out
+        return "Invalid move"
         
     def move(self, move):
         move = move[0] + move[1]
+
         move = self.find_piece_move(move)
+
         if not self.engine.is_move_legal(move):
             return "Invalid move"
         self.engine.move(move)
-        self.piece_positions[move[2]][move[3]], self.piece_positions[move[0]][move[1]] = self.piece_positions[move[0]][move[1]], self.piece_positions[move[2]][move[3]]
+        move_coord = self.get_coord(move)
+        self.piece_positions[int(move_coord[3])][int(move_coord[2])], self.piece_positions[int(move_coord[1])][int(move_coord[0])] = self.piece_positions[int(move_coord[1])][int(move_coord[0])], self.piece_positions[int(move_coord[3])][int(move_coord[2])]
         return "valid move"
+    
     def get_engine_move_time(self, time = None):
         if time is not None:
-            return self.engine.get_best_move_time(time)
+            time = self.time
         move = self.engine.get_best_move_time(self.time)
         #if move is a take
-        if self.piece_positions[move[2]][move[3]] != "":
+        if self.piece_positions[self.letter_to_number(move[2])][int(move[3])] != 0:
             out = [move[2:4] + "00", move[0:2] + move[2:4]]
+            self.engine.move(move)
             return out
+        self.engine.move(move)
         return [move]
     
     def get_engine_move_depth(self, depth = None):
@@ -78,39 +84,39 @@ class Chess:
         elif number == 7:
             return "h"
     def start_pos(self):
-        self.engine.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-        self.piece_positions[0][0] = "R"
-        self.piece_positions[0][1] = "N"
-        self.piece_positions[0][2] = "B"
-        self.piece_positions[0][3] = "Q"
-        self.piece_positions[0][4] = "K"
-        self.piece_positions[0][5] = "B"
-        self.piece_positions[0][6] = "N"
-        self.piece_positions[0][7] = "R"
-        self.piece_positions[1][0] = "P"
-        self.piece_positions[1][1] = "P"
-        self.piece_positions[1][2] = "P"
-        self.piece_positions[1][3] = "P"
-        self.piece_positions[1][4] = "P"
-        self.piece_positions[1][5] = "P"
-        self.piece_positions[1][6] = "P"
-        self.piece_positions[1][7] = "P"
-        self.piece_positions[6][0] = "p"
-        self.piece_positions[6][1] = "p"
-        self.piece_positions[6][2] = "p"
-        self.piece_positions[6][3] = "p"
-        self.piece_positions[6][4] = "p"
-        self.piece_positions[6][5] = "p"
-        self.piece_positions[6][6] = "p"
-        self.piece_positions[6][7] = "p"
-        self.piece_positions[7][0] = "r"
-        self.piece_positions[7][1] = "n"
-        self.piece_positions[7][2] = "b"
-        self.piece_positions[7][3] = "q"
-        self.piece_positions[7][4] = "k"
-        self.piece_positions[7][5] = "b"
-        self.piece_positions[7][6] = "n"
-        self.piece_positions[7][7] = "r"
+        #self.engine.set_fen("rnbqkbnr1pppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.piece_positions[0][0] = 1
+        self.piece_positions[0][1] = 1
+        self.piece_positions[0][2] = 1
+        self.piece_positions[0][3] = 1
+        self.piece_positions[0][4] = 1
+        self.piece_positions[0][5] = 1
+        self.piece_positions[0][6] = 1
+        self.piece_positions[0][7] = 1
+        self.piece_positions[1][0] = 1
+        self.piece_positions[1][1] = 1
+        self.piece_positions[1][2] = 1
+        self.piece_positions[1][3] = 1
+        self.piece_positions[1][4] = 1
+        self.piece_positions[1][5] = 1
+        self.piece_positions[1][6] = 1
+        self.piece_positions[1][7] = 1
+        self.piece_positions[6][0] = 1
+        self.piece_positions[6][1] = 1
+        self.piece_positions[6][2] = 1
+        self.piece_positions[6][3] = 1
+        self.piece_positions[6][4] = 1
+        self.piece_positions[6][5] = 1
+        self.piece_positions[6][6] = 1
+        self.piece_positions[6][7] = 1
+        self.piece_positions[7][0] = 1
+        self.piece_positions[7][1] = 1
+        self.piece_positions[7][2] = 1
+        self.piece_positions[7][3] = 1
+        self.piece_positions[7][4] = 1
+        self.piece_positions[7][5] = 1
+        self.piece_positions[7][6] = 1
+        self.piece_positions[7][7] = 1
+    def get_coord(self, move):
+        return str(self.letter_to_number(move[0])) + str(int(move[1])-1) + str(self.letter_to_number(move[2])) + str(int(move[3])-1)
 
-
-        

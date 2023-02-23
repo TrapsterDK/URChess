@@ -24,7 +24,7 @@ def compare_images(before, after):
     diff = (diff * 255).astype("uint8")
     diff_box = cv2.merge([diff, diff, diff])
 
-    thresh = cv2.threshold(diff, 120, 255, cv2.THRESH_BINARY_INV)[1]
+    thresh = cv2.threshold(diff, 190, 255, cv2.THRESH_BINARY_INV)[1]
     #print ("Threshold: {}".format(thresh))
     contours = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = contours[0] if len(contours) == 2 else contours[1]
@@ -97,7 +97,7 @@ def find_move(cam):
         #cv2.imshow("after", after)
         #cv2.waitKey(200)
         count += 1
-        if count > 10:
+        if count > 15:
             if succes_count != 0 and fail_count < succes_count and fail_count/ succes_count < 0.2 and out != 0:
                 #cv2.destroyAllWindows()
                 return save_coor[:out]
@@ -134,12 +134,6 @@ def find_move(cam):
         if out == 0:
             #print("fail from compare_images")
             fail_count += 1
-
-
-
-        
-            
-
 
 
 
