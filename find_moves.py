@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def compare_images(before, after):
+def compare_images(before, after, thress = 190):
     #Greyscale stuff
     before = cv2.cvtColor(before, cv2.COLOR_BGR2GRAY)
     after = cv2.cvtColor(after, cv2.COLOR_BGR2GRAY)
@@ -24,7 +24,7 @@ def compare_images(before, after):
     diff = (diff * 255).astype("uint8")
     diff_box = cv2.merge([diff, diff, diff])
 
-    thresh = cv2.threshold(diff, 190, 255, cv2.THRESH_BINARY_INV)[1]
+    thresh = cv2.threshold(diff, thress, 255, cv2.THRESH_BINARY_INV)[1]
     #print ("Threshold: {}".format(thresh))
     contours = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = contours[0] if len(contours) == 2 else contours[1]
@@ -78,7 +78,21 @@ def compare_images(before, after):
             #cv2.rectangle(after, (cx-2, cy-2), (cx+2, cy+2), (255,255,255), 2)
     for i in range (len(out[1])):
         cv2.rectangle(mask, (out[1][i][0]-2, out[1][i][1]-2), (out[1][i][0]+2, out[1][i][1]+2), (255,255,255), 2)
-    return out[0], out[1], mask
+    return out[0], out[1], mask, contours
+
+def find_Thress(cam):
+    ret, before = cam.get_frame()
+    tress = 50
+    while True:
+        time.wait(100)
+        ret, after = cam.get_frame()
+        out, coordinates, mask, contours = compare_images(before, after, tress)
+        if cv2.contourArea(contours[0]) > 50:
+            return tress - 5
+        tress += 5
+        if tress > 255:
+            return "Failed to find threshold"
+        
 
 def find_move(cam):
     #take a picture
