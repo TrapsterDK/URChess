@@ -88,11 +88,13 @@ def find_Thress(cam):
         if tress > 255:
             return "Failed to find threshold"
         
-
-def find_move(cam):
-    #take a picture
-    ret, before = cam.get_frame()
+def zero_pick(cam):
+    ret, pic = cam.get_frame()
     cam.save_frame("zero_frame.png")
+    return pic
+
+def find_move(cam, before):
+    #take a picture
     succes_count = 0
     fail_count = 0
     count = 0

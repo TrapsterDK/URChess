@@ -1,7 +1,7 @@
 from camera import Camera
 from robot import Robot, get_piece_coordinate_from_chessboard
 from findchessboard import find_chess_board_rects, get_square_with_point, square_to_chessboard_square, chessboard_to_square, square_to_xy
-from find_moves import find_move
+from find_moves import find_move, zero_pick
 from chess_mechanics import Chess
 
 def option_mode(option = None):
@@ -27,7 +27,8 @@ def option_mode(option = None):
             user = input()
             if user == "y":
                 print("finding moves")
-                moves = find_move(camera)
+                zero = zero_pick(camera)
+                moves = find_move(camera, zero)
                 print("Found moves coordinates", moves)
                 squares = [get_square_with_point(move, rects) for move in moves]
                 squares = [square for square in squares if square is not None]
@@ -81,8 +82,10 @@ if __name__ == "__main__":
 
     print("Started")
     while True:
-        print("Waiting for move, wait 3 seconds")
-        moves = find_move(camera)
+        print("Waiting for zero pick")
+        zero = zero_pick(camera)
+        print("Zero pick found")
+        moves = find_move(camera, zero)
         if moves is None:
             option_mode("stop")
             continue
