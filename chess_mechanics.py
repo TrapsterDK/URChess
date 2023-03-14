@@ -46,7 +46,7 @@ class Chess:
         move = self.find_piece_move(move)
 
         if not self.engine.is_move_legal(move):
-            return "Invalid move"
+            return None
         self.engine.move(move)
         move_coord = self.get_coord(move)
         self.piece_positions[int(move_coord[3])][int(move_coord[2])], self.piece_positions[int(move_coord[1])][int(move_coord[0])] = self.piece_positions[int(move_coord[1])][int(move_coord[0])], self.piece_positions[int(move_coord[3])][int(move_coord[2])]
@@ -141,4 +141,6 @@ class Chess:
         self.piece_positions[7][7] = 1
     def get_coord(self, move):
         return str(self.letter_to_number(move[0])) + str(int(move[1])-1) + str(self.letter_to_number(move[2])) + str(int(move[3])-1)
+    def undo(self):
+        self.engine.undo()
 

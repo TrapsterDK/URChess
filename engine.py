@@ -26,7 +26,7 @@ class Engine:
         self.moves = 0
         #if it is white's turn turn = True else turn = False
         self.turn = True
-        self.last_fen = None
+        self.last_fen_list = []
     
 
     def get_fen(self):
@@ -39,7 +39,7 @@ class Engine:
         return self.stockfish.get_parameters()
     
     def move(self, move):
-        self.last_fen = self.stockfish.get_fen_position()
+        self.last_fen_list.append((self.stockfish.get_fen_position(), self.turn))
         self.stockfish.make_moves_from_current_position([move])
         self.moves += 1
         self.turn = not self.turn
@@ -65,9 +65,18 @@ class Engine:
     
 
     def undo_move(self):
-        self.stockfish.set_fen_position(self.last_fen)
-        self.moves = 0
-        self.turn = not self.turn
+        while True:
+            if len(self.last_fen_list) == 0:
+                print("MEGA BRUH, NO MORE MOVES TO UNDO")
+                return
+            fen, turn = self.last_fen_list[len(self.last_fen_list) - 1][0], self.last_fen_list[len(self.last_fen_list) - 1][1] 
+            self.last_fen_list.pop()
+            self.stockfish.set_fen_position(fen)
+            self.moves -= 1
+            self.turn = turn
+            if self.turn == True:
+                break
+        return
 
     def get_visual(self):
         return self.stockfish.get_board_visual()

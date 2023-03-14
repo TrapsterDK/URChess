@@ -4,6 +4,7 @@ from skimage.metrics import structural_similarity
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import pathlib
 
 def compare_images(before, after, thress = 170):
     #Greyscale
@@ -97,6 +98,8 @@ def find_move(cam):
     count = 0
     save_coor = [(0,0), (0,0), (0,0), (0,0)]
     while True:
+        if 0xFF == ord('q'):
+            return None
         ret, after = cam.get_frame()
         out, coordinates, mask = compare_images(before, after)
         #cv2.imshow("mask", mask)
