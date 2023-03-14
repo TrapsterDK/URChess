@@ -363,7 +363,6 @@ print(square_to_chessboard_square(8))
 print(square_to_chessboard_square(63))
 '''
 
-'''
 from scipy import ndimage
 
 # show rotation detection
@@ -374,13 +373,12 @@ if __name__ == "__main__":
 
     while True:
         imgr = ndimage.rotate(img, rotation, reshape=True)
-        try:
-            rectangles = find_chess_board_rects(imgr)
+        rectangles = find_chess_board_rects(imgr)
+        if rectangles:
             draw_rects_with_index(imgr, rectangles)
-        except Exception as e:
-            print(e)
-            pass
-        cv2.imshow("img", imgr)
+            cv2.imshow("img", imgr)
+        else:
+            cv2.imshow("img", imgr)
         
         key = cv2.waitKey(0)
 
@@ -392,8 +390,8 @@ if __name__ == "__main__":
 
         if key == ord('d'):
             rotation -= 5
-'''
 
+'''
 if __name__ == "__main__":
     camera = Camera(0)
 
@@ -408,3 +406,4 @@ if __name__ == "__main__":
         cv2.imshow("img", img)
         if cv2.waitKey(1) == ord('q'):
             break
+'''
