@@ -5,13 +5,13 @@ from find_moves import find_move
 from chess_mechanics import Chess
 
 if __name__ == "__main__":
-    camera = Camera(0)
     robot = Robot("10.130.58.12")
+    camera = Camera(0)
     chess = Chess()
 
     print("Started")
     while True:
-        print("Waiting for move")
+        print("Waiting for move, wait 3 seconds")
         moves = find_move(camera)
         print("Found moves coordinates", moves)
         
@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
         print("Moving piece")
         chessmove = chess.get_engine_move_time(1000)
+        print(chess.get_visual())
         print("Moves: ", chessmove)
         for move in chessmove:
             pos1 = chessboard_to_square(move[0:2])

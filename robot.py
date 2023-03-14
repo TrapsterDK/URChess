@@ -54,7 +54,7 @@ class Robot:
                 self.rtde_con.receive_buffered()
             except Exception as e:
                 print("Error receiving RTDE data: ", e)
-                break
+                exit()
 
     def close(self) -> None:
         self.rtde_con.send_pause()
@@ -123,8 +123,8 @@ class Robot:
         while self.running():
             continue
 
-pieces_real_coordinates = [(-276.6, -59.8), (-502.2, -281.5)]
-pieces_pixel_coordinates = [(486, 36), (91, 431)]
+pieces_real_coordinates = [(-499.6, -295.9), (-277.3, -75.8)]
+pieces_pixel_coordinates = [(123, 426), (513, 57)]
 
 def get_piece_coordinate_from_pixel(x, y):
     x = (x - pieces_pixel_coordinates[0][0]) / (pieces_pixel_coordinates[1][0] - pieces_pixel_coordinates[0][0]) * (pieces_real_coordinates[1][0] - pieces_real_coordinates[0][0]) + pieces_real_coordinates[0][0]

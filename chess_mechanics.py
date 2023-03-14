@@ -1,4 +1,5 @@
 from engine import Engine
+
 class Chess:
     def __init__(self, time=5000, depth=100):
         self.engine = Engine(r"stockfish\stockfish-windows-2022-x86-64-avx2.exe", depth)
@@ -9,8 +10,27 @@ class Chess:
         self.depth = depth
     def get_visual(self):
         return self.engine.get_visual()
+    
     def find_piece_move(self, move):
-        move_coord = self.get_coord(move)
+        #move_coord = self.get_coord(move)
+        print(move)
+        sqr_1 = self.engine.stockfish.get_what_is_on_square(move[0:2])
+        sqr_2 = self.engine.stockfish.get_what_is_on_square(move[2:4])
+        if sqr_1 == None and sqr_2 != None:
+            out = move[2:4] + move[0:2]
+            return out
+        elif sqr_1 != None and sqr_2 == None:
+            out = move[0:2] + move[2:4]
+            return out
+        elif sqr_1 == None and sqr_2 == None:
+            return "Invalid move"
+        elif sqr_1.value.isupper() and sqr_2.value.islower():
+            out = move[0:2] + move[2:4]
+            return out
+        elif sqr_1.value.islower() and sqr_2.value.isupper():
+            out = move[2:4] + move[0:2]
+            return out
+        '''
         if self.piece_positions[int(move_coord[1])][int(move_coord[0])] == 0 and self.piece_positions[int(move_coord[3])][int(move_coord[2])] != 0:
             out = move[2:4] + move[0:2]
             return out
@@ -18,6 +38,7 @@ class Chess:
             out = move[0:2] + move[2:4]
             return out
         return "Invalid move"
+        '''
         
     def move(self, move):
         move = move[0] + move[1]
@@ -36,7 +57,8 @@ class Chess:
             time = self.time
         move = self.engine.get_best_move_time(self.time)
         #if move is a take
-        if self.piece_positions[self.letter_to_number(move[2])][int(move[3])] != 0:
+        #if self.piece_positions[self.letter_to_number(move[2])][int(move[3])] != 0:
+        if self.engine.stockfish.will_move_be_a_capture(move) != self.engine.stockfish.Capture.NO_CAPTURE:
             out = [move[2:4] + "00", move[0:2] + move[2:4]]
             self.engine.move(move)
             return out

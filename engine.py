@@ -6,7 +6,7 @@ class Engine:
             "Debug Log File": "",
             "Contempt": 0,
             "Min Split Depth": 0,
-            "Threads": 4,
+            "Threads": 2,
             "Ponder": "true",
             "Hash": 2048,
             "MultiPV": 1,

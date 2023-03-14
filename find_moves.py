@@ -5,16 +5,10 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def compare_images(before, after, thress = 190):
-    #Greyscale stuff
+def compare_images(before, after, thress = 170):
+    #Greyscale
     before = cv2.cvtColor(before, cv2.COLOR_BGR2GRAY)
     after = cv2.cvtColor(after, cv2.COLOR_BGR2GRAY)
-
-    #blur stuff
-    #before = cv2.GaussianBlur(before, (5, 5), 0)
-    #after = cv2.GaussianBlur(after, (5, 5), 0)
-    #before = cv2.GaussianBlur(before, (5, 5), 0)
-    #after = cv2.GaussianBlur(after, (5, 5), 0)
 
     #SSIM stuff
     (score, diff) = structural_similarity(before, after, full=True)
@@ -78,7 +72,7 @@ def compare_images(before, after, thress = 190):
             #cv2.rectangle(after, (cx-2, cy-2), (cx+2, cy+2), (255,255,255), 2)
     for i in range (len(out[1])):
         cv2.rectangle(mask, (out[1][i][0]-2, out[1][i][1]-2), (out[1][i][0]+2, out[1][i][1]+2), (255,255,255), 2)
-    return out[0], out[1], mask, contours
+    return out[0], out[1], mask
 
 def find_Thress(cam):
     ret, before = cam.get_frame()
@@ -103,7 +97,6 @@ def find_move(cam):
     count = 0
     save_coor = [(0,0), (0,0), (0,0), (0,0)]
     while True:
-                
         ret, after = cam.get_frame()
         out, coordinates, mask = compare_images(before, after)
         #cv2.imshow("mask", mask)
@@ -111,9 +104,10 @@ def find_move(cam):
         #cv2.imshow("after", after)
         #cv2.waitKey(200)
         count += 1
-        if count > 15:
+        if count > 30:
             if succes_count != 0 and fail_count < succes_count and fail_count/ succes_count < 0.2 and out != 0:
                 #cv2.destroyAllWindows()
+                cv2.imwrite("mask.png", mask)
                 return save_coor[:out]
                 ret, before = cam.get_frame()
                 count = 0
