@@ -142,6 +142,13 @@ def find_move(cam):
                 #print("koor fail")
                 save_coor = coordinates
                 succes_count = 0
+        if out == 3:
+            if save_coor[0][0]*0.9 < coordinates[0][0] < save_coor[0][0]*1.1 and save_coor[0][1]*0.9 < coordinates[0][1] < save_coor[0][1]*1.1 and save_coor[1][0]*0.9 < coordinates[1][0] < save_coor[1][0]*1.1 and save_coor[1][1]*0.9 < coordinates[1][1] < save_coor[1][1]*1.1 and save_coor[2][0]*0.9 < coordinates[2][0] < save_coor[2][0]*1.1 and save_coor[2][1]*0.9 < coordinates[2][1] < save_coor[2][1]*1.1:
+                succes_count += 1
+            else:
+                #print("koor fail")
+                save_coor = coordinates
+                succes_count = 0
         if out == 0:
             #print("fail from compare_images")
             fail_count += 1
